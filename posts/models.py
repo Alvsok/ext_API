@@ -26,6 +26,7 @@ class Post(models.Model):
         related_name="group_posts")
     image = models.ImageField(upload_to="posts/", blank=True, null=True)
 
+
 class Comment(models.Model):
     post = models.ForeignKey(
         Post,
@@ -40,6 +41,15 @@ class Comment(models.Model):
     text = models.TextField()
     created = models.DateTimeField(auto_now_add=True)
 
-    
-    
 
+class Follow(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="follower"
+    )
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="following"
+    )

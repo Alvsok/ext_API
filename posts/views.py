@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator
 from django.views.decorators.cache import cache_page
-from .models import Post, Group, User
+from .models import Post, Group, User, Follow
 from .forms import PostForm, CommentForm
 
 
@@ -35,7 +35,6 @@ def group_posts(request, slug):
 @login_required
 def new_post(request):
     if request.method == "POST":
-        # form = PostForm(request.POST)
         form = PostForm(request.POST or None, files=request.FILES or None)
 
         if form.is_valid():
@@ -51,10 +50,12 @@ def new_post(request):
 def profile_view(request, username):
     profile = get_object_or_404(User, username=username)
     articles = profile.author_posts.order_by("-pub_date").all()
+    following = request.user.follower.filter(author=profile)
     paginator = Paginator(articles, 10)
     page_number = request.GET.get("page")
     page = paginator.get_page(page_number)
     context = {
+        'following': following,
         'profile': profile,
         "page": page,
         "paginator": paginator,
@@ -142,7 +143,11 @@ def add_comment(request, username, post_id):
 @login_required
 def follow_index(request):
     profile = get_object_or_404(User, username=request.user)
-    articles = profile.following.order_by("-pub_date").all()
+    my_follower_list = []
+    for elem in request.user.follower.all():
+        my_follower_list.append(elem.author.id)
+    articles = Post.objects.filter(
+        author__in=my_follower_list).order_by("-pub_date")
     paginator = Paginator(articles, 10)
     page_number = request.GET.get("page")
     page = paginator.get_page(page_number)
@@ -156,11 +161,14 @@ def follow_index(request):
 
 @login_required
 def profile_follow(request, username):
-    # ...
-    pass
+    author = get_object_or_404(User, username=username)
+    follows = Follow.objects.create(user=request.user, author=author)
+    follows.save()
+    return redirect("follow_index")
 
 
 @login_required
 def profile_unfollow(request, username):
-    # ...
-    pass
+    author = get_object_or_404(User, username=username)
+    request.user.follower.filter(author=author).delete()
+    return redirect("follow_index")

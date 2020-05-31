@@ -1,13 +1,21 @@
 {% extends "base.html" %}
-{% block title %} Последние обновления {% endblock %}
+{% block title %} Последние обновления авторов, на которые вы подисаны {% endblock %}
 
 {% block content %}
     <div class="container">
-           <h1> Последние обновления на сайте</h1>
+        {% include "menu.html" with index=True %}
 
+        {% if page %}
+           <h1> Последние обновления авторов, на которые вы подисаны</h1>           
                 {% for post in page %}
                     {% include "post_item.html" with post=post %}
                 {% endfor %}
+        {% else %}
+            <h1> Вы пока ни на кого не подписаны</h1>
+        {% endif %}
+      
+
+
             
     </div>
 

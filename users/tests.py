@@ -14,6 +14,12 @@ class ProfileTest(TestCase):
             email="crackle@crackle.com",
             password="s12crac##kle345"
         )
+        # создание второго пользователя
+        self.user2 = User.objects.create_user(
+            username="crackle2",
+            email="crackle2@crackle.com",
+            password="s12crac##kle3452"
+        )
 
     def test_new_profile(self):
         url = reverse(
@@ -31,3 +37,48 @@ class ProfileTest(TestCase):
         # попадает на страницу авторизации
         response = self.client.get(url, follow=True)
         self.assertRedirects(response, '/auth/login/?next=/new/')
+
+    def test_following_login(self):
+        self.client.force_login(self.user)
+        # проверить наличие пдписок - должрно быть 0
+        # нажал на кнопку подписаться  -- вот это пока не ясно!!!
+        # на самом деле = это вызов функции profile_follow с параметром "profile.username" !!!!!!!!
+        # проверить наличие пдписок - должрна быть 1
+        # ДОП ВАРИАНТ у user2 пявился подписчик
+        # нажал на кнопку отписаться
+        # проверить наличие пдписок - должрна быть 0
+        # ДОП ВАРИАНТ у user2 подписчиков стало 0
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

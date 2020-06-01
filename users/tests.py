@@ -1,6 +1,6 @@
 from django.test import Client, TestCase
 from django.urls import reverse
-from posts.models import User, Post
+from posts.models import User, Post, Follow
 from posts import views
 
 
@@ -21,6 +21,13 @@ class ProfileTest(TestCase):
             password="s12crac##kle3452"
         )
 
+        '''
+        self.follow = Follow.objects.create(
+            user=self.user2,
+            author=self.user
+        )
+        '''
+
     def test_new_profile(self):
         url = reverse(
             "profile_view",
@@ -37,9 +44,27 @@ class ProfileTest(TestCase):
         # попадает на страницу авторизации
         response = self.client.get(url, follow=True)
         self.assertRedirects(response, '/auth/login/?next=/new/')
-
+'''
     def test_following_login(self):
         self.client.force_login(self.user)
+        #url = reverse(
+        #    "profile_follow",
+        #    kwargs={'username': self.user.username,}
+        #)
+
+        url = reverse(
+            "profile_view",
+            kwargs={'username': self.user2.username}
+            )
+        response = self.client.get(url, follow=True)
+        
+        #for elem in response:
+        #    print(elem)
+
+        self.assertEqual(response.status_code, 200)
+
+
+
         # проверить наличие пдписок - должрно быть 0
         # нажал на кнопку подписаться  -- вот это пока не ясно!!!
         # на самом деле = это вызов функции profile_follow с параметром "profile.username" !!!!!!!!
@@ -50,7 +75,7 @@ class ProfileTest(TestCase):
         # ДОП ВАРИАНТ у user2 подписчиков стало 0
 
 
-
+'''
 
 
 

@@ -1,12 +1,12 @@
 {% extends "base.html" %}
-{% block title %} Последние обновления авторов, на которые вы подисаны {% endblock %}
+{% block title %} Последние обновления авторов, на которые вы подписаны {% endblock %}
 
 {% block content %}
     <div class="container">
         {% include "menu.html" with index=True %}
 
         {% if page %}
-           <h1> Последние обновления авторов, на которые вы подисаны</h1>           
+           <h1> Последние обновления авторов, на которые вы подписаны</h1>           
                 {% for post in page %}
                     {% include "post_item.html" with post=post %}
                 {% endfor %}

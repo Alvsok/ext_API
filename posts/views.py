@@ -49,10 +49,12 @@ def new_post(request):
 
 def profile_view(request, username):
     profile = get_object_or_404(User, username=username)
-    articles = profile.author_posts.order_by("-pub_date").all()    
+    articles = profile.author_posts.order_by("-pub_date").all()
     follower = profile.follower.filter(author=profile)
-    if request.user.is_authenticated:
+    if (request.user.is_authenticated):
         following = request.user.follower.filter(author=profile)
+    #if (request.user != profile):
+    #    following = request.user.follower.filter(author=profile)
     else:
         following = 0
     paginator = Paginator(articles, 10)
@@ -148,13 +150,11 @@ def add_comment(request, username, post_id):
 @login_required
 def follow_index(request):
     profile = get_object_or_404(User, username=request.user)
-    
     my_follower_list = []
     for elem in request.user.follower.all():
         my_follower_list.append(elem.author.id)
     articles = Post.objects.filter(
         author__in=my_follower_list).order_by("-pub_date")
-    
     paginator = Paginator(articles, 10)
     page_number = request.GET.get("page")
     page = paginator.get_page(page_number)
@@ -169,9 +169,11 @@ def follow_index(request):
 @login_required
 def profile_follow(request, username):
     author = get_object_or_404(User, username=username)
-    #if Follow.objects.filter(author=author) == []:  ДОРАБОТАТЬ ПРОВЕРКУ НА ДУЛИБ!
-    follows = Follow.objects.create(user=request.user, author=author)
-    follows.save()
+    # if Follow.objects.filter(author=author) == []:
+    # ДОРАБОТАТЬ ПРОВЕРКУ НА ДУЛИБ!
+    if request.user != author:
+        follows = Follow.objects.create(user=request.user, author=author)
+        follows.save()
     return redirect("follow_index")
 
 

@@ -2,8 +2,7 @@ from time import sleep
 from django.test import Client, TestCase
 from django.urls import reverse
 from django.core.cache import cache
-from .models import User, Post, Group, Follow
-from . import views
+from .models import User, Post, Group
 
 
 class ProfileTest(TestCase):
@@ -25,14 +24,14 @@ class ProfileTest(TestCase):
         # создание группы
         self.group = Group.objects.create(
             title="Test group title",
-            slug ="group_test",
+            slug="group_test",
             description="Test group description"
         )
 
         # создаём пост от имени пользователя
         self.post = Post.objects.create(
             text="Django is a high-level Python Web framework",
-            group = self.group,
+            group=self.group,
             author=self.user
         )
 
@@ -46,10 +45,6 @@ class ProfileTest(TestCase):
             response.context['page'][0].text,
             self.post.text
         )
-
-    
-
-
 
     def test_new_post_in_post_page(self):
         url = reverse(
@@ -88,15 +83,10 @@ class ProfileTest(TestCase):
         # видно на главной странице
         url = reverse("index")
 
-        #cache.clear()
+        # cache.clear()
 
-        response = self.client.get(url)       
+        response = self.client.get(url)
         self.assertContains(response, new_post)
-
-
-
-
-
         # создалась новая страница поста
         url = reverse(
             "post_view",
@@ -146,10 +136,7 @@ class ProfileTest(TestCase):
         )
         # изменения видны на главной странице
         url = reverse("index")
-
         cache.clear()
-
-
         response = self.client.get(url)
         self.assertEqual(
             response.context['page'][0].text,
@@ -202,6 +189,7 @@ class ProfileTest(TestCase):
             response,
             target_url
         )
+
     # проверка редиректа fake pages на 404
     def test_impossible_page(self):
         url = reverse(
@@ -211,7 +199,7 @@ class ProfileTest(TestCase):
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 404)
 
-    def test_is_image(self):        
+    def test_is_image(self):
         self.client.force_login(self.user)
         url = reverse(
             "post_edit",
@@ -222,12 +210,12 @@ class ProfileTest(TestCase):
         )
         new_text = "Here is the picture now"
         path_img = "media/posts/la1_2.jpg"
-        with open(path_img,'rb') as img:
+        with open(path_img, 'rb') as img:
             response = self.client.post(
                 url,
                 data={
                     "text": new_text,
-                    "group": 1,                    
+                    "group": 1,
                     "image": img
                 },
                 follow=True
@@ -244,10 +232,7 @@ class ProfileTest(TestCase):
         self.assertContains(response, 'img class="card-img"')
         # картинка видна на главной странице
         url = reverse("index")
-
         cache.clear()
-
-
         response = self.client.get(url)
         self.assertContains(response, 'img class="card-img"')
         # картинка видна на странице профайла
@@ -256,16 +241,17 @@ class ProfileTest(TestCase):
             kwargs={'username': self.user.username}
         )
         response = self.client.get(url)
-        self.assertContains(response, 'img class="card-img"')        
+        self.assertContains(response, 'img class="card-img"')
         # картинка видна на странице группы
         url = reverse(
             "group_posts",
             kwargs={"slug": self.group.slug}
         )
         response = self.client.get(url)
-        self.assertContains(response, 'img class="card-img"')    
+        self.assertContains(response, 'img class="card-img"')
+
     # загрузка неграфического файла
-    def test_load_non_image(self):        
+    def test_load_non_image(self):
         self.client.force_login(self.user)
         url = reverse(
             "post_edit",
@@ -276,14 +262,14 @@ class ProfileTest(TestCase):
         )
         new_text = "Here loaded non picture file"
         # возьмем неграфический файл и переименуем его
-        # расширение в jpg чтобы обмануть систему  
+        # расширение в jpg чтобы обмануть систему
         path_img = "media/posts/f_la1.jpg"
-        with open(path_img,'rb') as img:
+        with open(path_img, 'rb') as img:
             response = self.client.post(
                 url,
                 data={
                     "text": new_text,
-                    "group": 1,                    
+                    "group": 1,
                     "image": img
                 },
                 follow=True
@@ -292,8 +278,8 @@ class ProfileTest(TestCase):
         # редирект на страницу поста. Если загрузка не
         # удалась, мы останемся на странице редактирования
         self.assertEqual(url, response.request['PATH_INFO'])
-        # и никаких изображений в записи не появится 
-        self.assertNotContains(response, 'img class="card-img"')   
+        # и никаких изображений в записи не появится
+        self.assertNotContains(response, 'img class="card-img"')
 
     def test_kache_new_posts(self):
         self.client.force_login(self.user)
@@ -306,11 +292,11 @@ class ProfileTest(TestCase):
         )
         # не видно на главной странице
         url = reverse("index")
-        response = self.client.get(url)        
+        response = self.client.get(url)
         self.assertNotContains(response, new_post)
         # почистим кэш и новый текст станет виден на главной странице
         cache.clear()
-        response = self.client.get(url)      
+        response = self.client.get(url)
         self.assertContains(response, new_post)
 
     def test_kache_time(self):
@@ -324,12 +310,60 @@ class ProfileTest(TestCase):
         )
         # не видно на главной странице
         url = reverse("index")
-        response = self.client.get(url)        
+        response = self.client.get(url)
         self.assertNotContains(response, new_post)
         # дадим время и новый текст станет виден на главной странице
         sleep(20)
-        response = self.client.get(url)      
+        response = self.client.get(url)
         self.assertContains(response, new_post)
-   
-    
-        
+
+    def test_comments_one(self):
+        self.client.force_login(self.user)
+        url = reverse(
+            "post_view",
+            kwargs={
+                'username': self.user.username,
+                'post_id': 1
+            }
+        )
+        new_comment = "This is a new comment"
+        url += 'comment/'
+        response = self.client.post(
+            url,
+            data={'text': new_comment},
+            follow=True
+        )
+        # снова формируем url поста
+        url = reverse(
+            "post_view",
+            kwargs={
+                'username': self.user.username,
+                'post_id': 1
+            }
+        )
+        response = self.client.get(url)
+        # и видим, что комментарий появился
+        self.assertContains(response, new_comment)
+        # разлогинимся
+        self.client.logout()
+        new_comment_logout = "This is a new comment by logout"
+        url += 'comment/'
+        # попытаемся сделать POST запрос
+        # понимая, что возникнет исключение
+        self.assertRaises(
+            ValueError,
+            self.client.post,
+            url,
+            data={'text': new_comment_logout},
+            follow=True
+        )
+        # нового коммента на страние нет
+        url = reverse(
+            "post_view",
+            kwargs={
+                'username': self.user.username,
+                'post_id': 1
+            }
+        )
+        response = self.client.get(url)
+        self.assertNotContains(response, new_comment_logout)

@@ -53,8 +53,6 @@ def profile_view(request, username):
     follower = profile.follower.filter(author=profile)
     if (request.user.is_authenticated):
         following = request.user.follower.filter(author=profile)
-    #if (request.user != profile):
-    #    following = request.user.follower.filter(author=profile)
     else:
         following = 0
     paginator = Paginator(articles, 10)
@@ -112,8 +110,6 @@ def post_edit(request, username, post_id):
 
 
 def page_not_found(request, exception):
-    # Переменная exception содержит отладочную информацию,
-    # выводить её в шаблон пользователской страницы 404 мы не станем
     return render(request, "misc/404.html", {"path": request.path}, status=404)
 
 
@@ -121,20 +117,29 @@ def server_error(request):
     return render(request, "misc/500.html", status=500)
 
 
+@login_required
 def add_comment(request, username, post_id):
     profile = get_object_or_404(User, username=username)
     article = get_object_or_404(profile.author_posts, id=post_id)
     # список комментов к посту
     comments = article.comments.all()
+    new_comment = None
     if request.method == "POST":
-        comment_form = CommentForm(request.POST)
+        comment_form = CommentForm(
+            request.POST or None,
+            files=request.FILES or None
+        )
         if comment_form.is_valid():
             new_comment = comment_form.save(commit=False)
             new_comment.author = request.user
             new_comment.post_id = article.id
             new_comment.save()
             return redirect("post_view", username=username, post_id=post_id)
-        return render(request, "comments.html", {"comment_form": comment_form})
+        return render(
+            request,
+            "post_view.html",
+            {"comment_form": comment_form}
+        )
     else:
         comment_form = CommentForm()
     context = {
@@ -144,7 +149,7 @@ def add_comment(request, username, post_id):
         "new_comment": new_comment,
         "comment_form": comment_form
     }
-    return render(request, "comments.html", context)
+    return render(request, "post_view.html", context)
 
 
 @login_required
@@ -169,9 +174,11 @@ def follow_index(request):
 @login_required
 def profile_follow(request, username):
     author = get_object_or_404(User, username=username)
-    # if Follow.objects.filter(author=author) == []:
-    # ДОРАБОТАТЬ ПРОВЕРКУ НА ДУЛИБ!
-    if request.user != author:
+    flag = Follow.objects.filter(
+        author=author,
+        user=request.user
+    ).count() == 0 and request.user != author
+    if flag:
         follows = Follow.objects.create(user=request.user, author=author)
         follows.save()
     return redirect("follow_index")

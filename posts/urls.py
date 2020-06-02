@@ -3,8 +3,8 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    # path("404/", views.page_not_found, name="page_not_found"),
-    # path("500/", views.server_error, name="server_error"),
+    path("404/", views.page_not_found, name="page_not_found"),
+    path("500/", views.server_error, name="server_error"),
     path("follow/", views.follow_index, name="follow_index"),
     path("group/<slug:slug>/", views.group_posts, name="group_posts"),
     path("new/", views.new_post, name="new_post"),

@@ -71,7 +71,7 @@ class ProfileTest(TestCase):
             self.post.text
         )
 
-    def test_create_hhhhhh_login(self):
+    def test_create_login(self):
         self.client.force_login(self.user)
         url = reverse("new_post")
         new_post = "This is a new post"
@@ -82,9 +82,6 @@ class ProfileTest(TestCase):
         )
         # видно на главной странице
         url = reverse("index")
-
-        # cache.clear()
-
         response = self.client.get(url)
         self.assertContains(response, new_post)
         # создалась новая страница поста
@@ -349,14 +346,8 @@ class ProfileTest(TestCase):
         new_comment_logout = "This is a new comment by logout"
         url += 'comment/'
         # попытаемся сделать POST запрос
-        # понимая, что возникнет исключение
-        self.assertRaises(
-            ValueError,
-            self.client.post,
-            url,
-            data={'text': new_comment_logout},
-            follow=True
-        )
+        # видим, что попадаем на страницу поста
+        self.assertTemplateUsed(response, 'post_view.html')
         # нового коммента на страние нет
         url = reverse(
             "post_view",

@@ -14,13 +14,13 @@ class PostGroup(admin.ModelAdmin):
     search_fields = ("title",)
     empty_value_display = "-пусто-"
 
+
 class PostComment(admin.ModelAdmin):
     list_display = ("pk", "post", "author", "text", "created")
     search_fields = ("title",)
     empty_value_display = "-пусто-"
-    
+
 
 admin.site.register(Post, PostAdmin)
 admin.site.register(Group, PostGroup)
 admin.site.register(Comment, PostComment)
-

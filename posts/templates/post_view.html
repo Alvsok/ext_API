@@ -49,7 +49,6 @@
  
                {{ article.text }}
                </p>
-               {% include "comments.html" %}
                <div class="d-flex justify-content-between align-items-center">
                   <div class="btn-group ">
                      <!-- Ссылка на редактирование, показывается только автору записи -->
@@ -60,6 +59,10 @@
                   <!-- Дата публикации  -->
                   <small class="text-muted"> {{ article.pub_date|date:"d M Y" }} г. {{ article.pub_date|date:"H:m" }}</small>
                </div>
+
+               {% include "comments.html" %}
+
+
             </div>
          </div>
       </div>

@@ -13,15 +13,8 @@
         {% else %}
             <h1> Вы пока ни на кого не подписаны</h1>
         {% endif %}
-      
-
-
-            
     </div>
-
-        <!-- Вывод паджинатора -->
         {% if page.has_other_pages %}
             {% include "paginator.html" with items=page paginator=paginator%}
         {% endif %}
-
 {% endblock %}

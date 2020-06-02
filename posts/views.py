@@ -8,64 +8,64 @@ from .forms import PostForm, CommentForm
 
 @cache_page(20)
 def index(request):
-    post_list = Post.objects.order_by("-pub_date").all()
+    post_list = Post.objects.order_by('-pub_date').all()
     paginator = Paginator(post_list, 10)
-    page_number = request.GET.get("page")
+    page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
     return render(
         request,
-        "index.html",
-        {"page": page, "paginator": paginator}
+        'index.html',
+        {'page': page, 'paginator': paginator}
     )
 
 
 def group_posts(request, slug):
     group = get_object_or_404(Group, slug=slug)
-    posts = group.group_posts.order_by("-pub_date").all()
+    posts = group.group_posts.order_by('-pub_date').all()
     paginator = Paginator(posts, 10)
-    page_number = request.GET.get("page")
+    page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
     return render(
         request,
-        "group.html",
-        {"group": group, "page": page, "paginator": paginator}
+        'group.html',
+        {'group': group, 'page': page, 'paginator': paginator}
     )
 
 
 @login_required
 def new_post(request):
-    if request.method == "POST":
+    if request.method == 'POST':
         form = PostForm(request.POST or None, files=request.FILES or None)
 
         if form.is_valid():
             new_article = form.save(commit=False)
             new_article.author = request.user
             new_article.save()
-            return redirect("index")
-        return render(request, "new_post.html", {"form": form})
+            return redirect('index')
+        return render(request, 'new_post.html', {'form': form})
     form = PostForm()
-    return render(request, "new_post.html", {"form": form})
+    return render(request, 'new_post.html', {'form': form})
 
 
 def profile_view(request, username):
     profile = get_object_or_404(User, username=username)
-    articles = profile.author_posts.order_by("-pub_date").all()
+    articles = profile.author_posts.order_by('-pub_date').all()
     follower = profile.follower.filter(author=profile)
     if (request.user.is_authenticated):
         following = request.user.follower.filter(author=profile)
     else:
         following = 0
     paginator = Paginator(articles, 10)
-    page_number = request.GET.get("page")
+    page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
     context = {
         'follower': follower,
         'following': following,
         'profile': profile,
-        "page": page,
-        "paginator": paginator,
+        'page': page,
+        'paginator': paginator,
     }
-    return render(request, "profile_view.html", context)
+    return render(request, 'profile_view.html', context)
 
 
 def post_view(request, username, post_id):
@@ -75,21 +75,21 @@ def post_view(request, username, post_id):
     comment_form = CommentForm()
 
     context = {
-        "profile": profile,
-        "article": article,
-        "comments": comments,
-        "comment_form": comment_form
+        'profile': profile,
+        'article': article,
+        'comments': comments,
+        'comment_form': comment_form
     }
-    return render(request, "post_view.html", context)
+    return render(request, 'post_view.html', context)
 
 
 def post_edit(request, username, post_id):
     profile = get_object_or_404(User, username=username)
     if request.user != profile:
-        return redirect("post_view", username=username, post_id=post_id)
+        return redirect('post_view', username=username, post_id=post_id)
     article = get_object_or_404(profile.author_posts, id=post_id)
 
-    if request.method == "POST":
+    if request.method == 'POST':
         form = PostForm(
             request.POST or None,
             files=request.FILES or None,
@@ -98,23 +98,23 @@ def post_edit(request, username, post_id):
         if form.is_valid():
             edited_article = form.save(commit=False)
             edited_article.save()
-            return redirect("post_view", username=username, post_id=post_id)
-        return render(request, "new_post.html", {"form": form})
+            return redirect('post_view', username=username, post_id=post_id)
+        return render(request, 'new_post.html', {'form': form})
 
     form = PostForm(instance=article)
     return render(
         request,
-        "new_post.html",
-        {"form": form, "article": article}
+        'new_post.html',
+        {'form': form, 'article': article}
     )
 
 
 def page_not_found(request, exception):
-    return render(request, "misc/404.html", {"path": request.path}, status=404)
+    return render(request, 'misc/404.html', {'path': request.path}, status=404)
 
 
 def server_error(request):
-    return render(request, "misc/500.html", status=500)
+    return render(request, 'misc/500.html', status=500)
 
 
 @login_required
@@ -124,7 +124,7 @@ def add_comment(request, username, post_id):
     # список комментов к посту
     comments = article.comments.all()
     new_comment = None
-    if request.method == "POST":
+    if request.method == 'POST':
         comment_form = CommentForm(
             request.POST or None,
             files=request.FILES or None
@@ -134,22 +134,22 @@ def add_comment(request, username, post_id):
             new_comment.author = request.user
             new_comment.post_id = article.id
             new_comment.save()
-            return redirect("post_view", username=username, post_id=post_id)
+            return redirect('post_view', username=username, post_id=post_id)
         return render(
             request,
-            "post_view.html",
-            {"comment_form": comment_form}
+            'post_view.html',
+            {'comment_form': comment_form}
         )
     else:
         comment_form = CommentForm()
     context = {
-        "profile": profile,
-        "article": article,
-        "comments": comments,
-        "new_comment": new_comment,
-        "comment_form": comment_form
+        'profile': profile,
+        'article': article,
+        'comments': comments,
+        'new_comment': new_comment,
+        'comment_form': comment_form
     }
-    return render(request, "post_view.html", context)
+    return render(request, 'post_view.html', context)
 
 
 @login_required
@@ -159,16 +159,16 @@ def follow_index(request):
     for elem in request.user.follower.all():
         my_follower_list.append(elem.author.id)
     articles = Post.objects.filter(
-        author__in=my_follower_list).order_by("-pub_date")
+        author__in=my_follower_list).order_by('-pub_date')
     paginator = Paginator(articles, 10)
-    page_number = request.GET.get("page")
+    page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
     context = {
         'profile': profile,
-        "page": page,
-        "paginator": paginator,
+        'page': page,
+        'paginator': paginator,
     }
-    return render(request, "follow.html", context)
+    return render(request, 'follow.html', context)
 
 
 @login_required
@@ -181,11 +181,11 @@ def profile_follow(request, username):
     if flag:
         follows = Follow.objects.create(user=request.user, author=author)
         follows.save()
-    return redirect("follow_index")
+    return redirect('follow_index')
 
 
 @login_required
 def profile_unfollow(request, username):
     author = get_object_or_404(User, username=username)
     request.user.follower.filter(author=author).delete()
-    return redirect("follow_index")
+    return redirect('follow_index')

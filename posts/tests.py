@@ -11,32 +11,32 @@ class ProfileTest(TestCase):
         self.client = Client()
         # создание пользователя
         self.user = User.objects.create_user(
-            username="crackle",
-            email="crackle@crackle.com",
-            password="s12crac##kle345"
+            username='crackle',
+            email='crackle@crackle.com',
+            password='s12crac##kle345'
         )
         # создание второго пользователя
         self.user2 = User.objects.create_user(
-            username="crackle2",
-            email="crackle2@crackle.com",
-            password="s12crac##kle3452"
+            username='crackle2',
+            email='crackle2@crackle.com',
+            password='s12crac##kle3452'
         )
         # создание группы
         self.group = Group.objects.create(
-            title="Test group title",
-            slug="group_test",
-            description="Test group description"
+            title='Test group title',
+            slug='group_test',
+            description='Test group description'
         )
 
         # создаём пост от имени пользователя
         self.post = Post.objects.create(
-            text="Django is a high-level Python Web framework",
+            text='Django is a high-level Python Web framework',
             group=self.group,
             author=self.user
         )
 
     def test_new_post_in_home_page(self):
-        url = reverse("index")
+        url = reverse('index')
 
         cache.clear()
 
@@ -48,7 +48,7 @@ class ProfileTest(TestCase):
 
     def test_new_post_in_post_page(self):
         url = reverse(
-            "post_view",
+            'post_view',
             kwargs={
                 'username': self.user.username,
                 'post_id': 1
@@ -62,7 +62,7 @@ class ProfileTest(TestCase):
 
     def test_new_post_in_user_page(self):
         url = reverse(
-            "profile_view",
+            'profile_view',
             kwargs={'username': self.user.username}
         )
         response = self.client.get(url)
@@ -73,20 +73,20 @@ class ProfileTest(TestCase):
 
     def test_create_login(self):
         self.client.force_login(self.user)
-        url = reverse("new_post")
-        new_post = "This is a new post"
+        url = reverse('new_post')
+        new_post = 'This is a new post'
         response = self.client.post(
             url,
             data={'text': new_post},
             follow=True
         )
         # видно на главной странице
-        url = reverse("index")
+        url = reverse('index')
         response = self.client.get(url)
         self.assertContains(response, new_post)
         # создалась новая страница поста
         url = reverse(
-            "post_view",
+            'post_view',
             kwargs={
                 'username': self.user.username,
                 'post_id': 2}
@@ -95,7 +95,7 @@ class ProfileTest(TestCase):
         self.assertEqual(response.status_code, 200)
         # видно на странице поста
         url = reverse(
-            "post_view",
+            'post_view',
             kwargs={
                 'username': self.user.username,
                 'post_id': 2}
@@ -107,7 +107,7 @@ class ProfileTest(TestCase):
         )
         # видно на странице пользователя
         url = reverse(
-            "profile_view",
+            'profile_view',
             kwargs={'username': self.user.username}
         )
         response = self.client.get(url)
@@ -119,7 +119,7 @@ class ProfileTest(TestCase):
     def test_edit_posts(self):
         self.client.force_login(self.user)
         url = reverse(
-            "post_edit",
+            'post_edit',
             kwargs={
                 'username': self.user.username,
                 'post_id': 1
@@ -132,7 +132,7 @@ class ProfileTest(TestCase):
             follow=True
         )
         # изменения видны на главной странице
-        url = reverse("index")
+        url = reverse('index')
         cache.clear()
         response = self.client.get(url)
         self.assertEqual(
@@ -141,7 +141,7 @@ class ProfileTest(TestCase):
         )
         # изменения видны на странице поста
         url = reverse(
-            "post_view",
+            'post_view',
             kwargs={
                 'username': self.user.username,
                 'post_id': 1
@@ -154,7 +154,7 @@ class ProfileTest(TestCase):
         )
         # изменения видны на странице профайла
         url = reverse(
-            "profile_view",
+            'profile_view',
             kwargs={'username': self.user.username}
         )
         response = self.client.get(url)
@@ -168,7 +168,7 @@ class ProfileTest(TestCase):
         # редиректится на страницу показа этого поста
         self.client.force_login(self.user2)
         url = reverse(
-            "post_edit",
+            'post_edit',
             kwargs={
                 'username': self.user.username,
                 'post_id': 1
@@ -176,7 +176,7 @@ class ProfileTest(TestCase):
         )
         response = self.client.get(url, follow=True)
         target_url = reverse(
-            "post_view",
+            'post_view',
             kwargs={
                 'username': self.user.username,
                 'post_id': 1
@@ -190,7 +190,7 @@ class ProfileTest(TestCase):
     # проверка редиректа fake pages на 404
     def test_impossible_page(self):
         url = reverse(
-            "profile_view",
+            'profile_view',
             kwargs={'username': 'ffffff'}
         )
         response = self.client.get(url, follow=True)
@@ -199,27 +199,27 @@ class ProfileTest(TestCase):
     def test_is_image(self):
         self.client.force_login(self.user)
         url = reverse(
-            "post_edit",
+            'post_edit',
             kwargs={
                 'username': self.user.username,
                 'post_id': 1
             }
         )
-        new_text = "Here is the picture now"
-        path_img = "media/posts/la1_2.jpg"
+        new_text = 'Here is the picture now'
+        path_img = 'media/posts/la1_2.jpg'
         with open(path_img, 'rb') as img:
             response = self.client.post(
                 url,
                 data={
-                    "text": new_text,
-                    "group": 1,
-                    "image": img
+                    'text': new_text,
+                    'group': 1,
+                    'image': img
                 },
                 follow=True
             )
         # картинка видна на странице записи
         url = reverse(
-            "post_view",
+            'post_view',
             kwargs={
                 'username': self.user.username,
                 'post_id': 1
@@ -228,21 +228,21 @@ class ProfileTest(TestCase):
         response = self.client.get(url)
         self.assertContains(response, 'img class="card-img"')
         # картинка видна на главной странице
-        url = reverse("index")
+        url = reverse('index')
         cache.clear()
         response = self.client.get(url)
         self.assertContains(response, 'img class="card-img"')
         # картинка видна на странице профайла
         url = reverse(
-            "profile_view",
+            'profile_view',
             kwargs={'username': self.user.username}
         )
         response = self.client.get(url)
         self.assertContains(response, 'img class="card-img"')
         # картинка видна на странице группы
         url = reverse(
-            "group_posts",
-            kwargs={"slug": self.group.slug}
+            'group_posts',
+            kwargs={'slug': self.group.slug}
         )
         response = self.client.get(url)
         self.assertContains(response, 'img class="card-img"')
@@ -251,23 +251,23 @@ class ProfileTest(TestCase):
     def test_load_non_image(self):
         self.client.force_login(self.user)
         url = reverse(
-            "post_edit",
+            'post_edit',
             kwargs={
                 'username': self.user.username,
                 'post_id': 1
             }
         )
-        new_text = "Here loaded non picture file"
+        new_text = 'Here loaded non picture file'
         # возьмем неграфический файл и переименуем его
         # расширение в jpg чтобы обмануть систему
-        path_img = "media/posts/f_la1.jpg"
+        path_img = 'media/posts/f_la1.jpg'
         with open(path_img, 'rb') as img:
             response = self.client.post(
                 url,
                 data={
-                    "text": new_text,
-                    "group": 1,
-                    "image": img
+                    'text': new_text,
+                    'group': 1,
+                    'image': img
                 },
                 follow=True
             )
@@ -280,15 +280,15 @@ class ProfileTest(TestCase):
 
     def test_kache_new_posts(self):
         self.client.force_login(self.user)
-        url = reverse("new_post")
-        new_post = "JCu9K^W1sM75dM9*@"
+        url = reverse('new_post')
+        new_post = 'JCu9K^W1sM75dM9*@'
         response = self.client.post(
             url,
             data={'text': new_post},
             follow=True
         )
         # не видно на главной странице
-        url = reverse("index")
+        url = reverse('index')
         response = self.client.get(url)
         self.assertNotContains(response, new_post)
         # почистим кэш и новый текст станет виден на главной странице
@@ -298,15 +298,15 @@ class ProfileTest(TestCase):
 
     def test_kache_time(self):
         self.client.force_login(self.user)
-        url = reverse("new_post")
-        new_post = "DR#4x@X97$7^kFr!l"
+        url = reverse('new_post')
+        new_post = 'DR#4x@X97$7^kFr!l'
         response = self.client.post(
             url,
             data={'text': new_post},
             follow=True
         )
         # не видно на главной странице
-        url = reverse("index")
+        url = reverse('index')
         response = self.client.get(url)
         self.assertNotContains(response, new_post)
         # дадим время и новый текст станет виден на главной странице
@@ -317,13 +317,13 @@ class ProfileTest(TestCase):
     def test_comments_one(self):
         self.client.force_login(self.user)
         url = reverse(
-            "post_view",
+            'post_view',
             kwargs={
                 'username': self.user.username,
                 'post_id': 1
             }
         )
-        new_comment = "This is a new comment"
+        new_comment = 'This is a new comment'
         url += 'comment/'
         response = self.client.post(
             url,
@@ -332,7 +332,7 @@ class ProfileTest(TestCase):
         )
         # снова формируем url поста
         url = reverse(
-            "post_view",
+            'post_view',
             kwargs={
                 'username': self.user.username,
                 'post_id': 1
@@ -343,14 +343,25 @@ class ProfileTest(TestCase):
         self.assertContains(response, new_comment)
         # разлогинимся
         self.client.logout()
-        new_comment_logout = "This is a new comment by logout"
+        # после разлогинивания кнопка 'Отправить' отсутствует
+        response = self.client.get(url)
+        self.assertNotContains(
+            response,
+            '<button type="submit" class="btn btn-primary">Отправить</button>'
+        )
+        # при попытке сделать POST запрос со страницы
+        # комментариев попадаем на страницу авторизации
+        new_comment_logout = 'This is a new comment by logout'
         url += 'comment/'
-        # попытаемся сделать POST запрос
-        # видим, что попадаем на страницу поста
-        self.assertTemplateUsed(response, 'post_view.html')
+        response = self.client.post(
+            url,
+            data={'text': new_comment},
+            follow=True
+        )
+        self.assertTemplateUsed(response, 'registration/login.html')
         # нового коммента на страние нет
         url = reverse(
-            "post_view",
+            'post_view',
             kwargs={
                 'username': self.user.username,
                 'post_id': 1

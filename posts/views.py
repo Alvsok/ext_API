@@ -36,7 +36,6 @@ def group_posts(request, slug):
 def new_post(request):
     if request.method == 'POST':
         form = PostForm(request.POST or None, files=request.FILES or None)
-
         if form.is_valid():
             new_article = form.save(commit=False)
             new_article.author = request.user

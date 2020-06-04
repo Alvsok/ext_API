@@ -37,6 +37,10 @@ class ProfileTest(TestCase):
         )
 
     def test_new_profile(self):
+        """
+        Проверка создания нового пользователя и отображения
+        его на странице профиля
+        """
         url = reverse(
             'profile_view',
             kwargs={'username': self.user.username}
@@ -45,6 +49,10 @@ class ProfileTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_redirect_logout(self):
+        """
+        Проверка невозможности разлогиненного пользователя
+        создать пост
+        """
         self.client.logout()
         url = reverse('new_post')
         response = self.client.get(url)
@@ -54,8 +62,15 @@ class ProfileTest(TestCase):
         self.assertTemplateUsed(response, 'registration/login.html')
 
     def test_following_login(self):
-        # у авторизованного пользователя при просмотре
-        # чужого профиля до подписания есть кнопка 'Подписаться'
+        """
+        Проверка режима подписки:
+         - у авторизованного пользователя при просмотре чужого профиля
+         до подписания на него есть кнопка 'Подписаться';
+         - при нажатии на кнопку происходит редирект на страницу избранного,
+         на которой есть только посты на которого подписались;
+         - количество подписок увеличивается на 1;
+         - у того, на кого подписались, количество подписчиков выросло на 1.
+        """
         self.client.force_login(self.user)
         url = reverse(
             'profile_view',
@@ -90,6 +105,15 @@ class ProfileTest(TestCase):
         self.assertEqual(self.user2.follower.count(), 0)
 
     def test_unfollowing_login(self):
+        """
+        Проверка режима отписки:
+         - при нажатии на кнопку Отписаться происходит редирект на страницу
+         избранного;
+         - на этой странице нет постов того, на которого подписывались
+         - нет также и своих постов;
+         - количество подписок уменьшается на 1;
+         - у того, на кого подписались,количество подписчиков уменьшилось на 1.
+        """
         self.client.force_login(self.user)
         # при нажатии на кнопку 'Отписаться'
         url = reverse(
@@ -160,8 +184,12 @@ class ProfileTest(TestCase):
         self.assertNotContains(response, new_post_user2)
 
     def test_following_logout(self):
-        # у неавторизованного пользователя отсутствуют
-        # кнопки 'Подписаться' или 'Отписаться'
+        """
+        Проверка работы подписки для неавторизованного пользователя.
+        Кнопки Пописаться и Отписаться отсутствуют
+        При попытке перейти по /follow/ присходит редирект
+        на страницу авторизации
+        """
         self.client.logout()
         url = reverse(
             'profile_view',

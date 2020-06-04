@@ -36,6 +36,9 @@ class ProfileTest(TestCase):
         )
 
     def test_new_post_in_home_page(self):
+        """
+        Проверка видимости нового поста на главной странице
+        """
         url = reverse('index')
         cache.clear()
         response = self.client.get(url)
@@ -45,6 +48,9 @@ class ProfileTest(TestCase):
         )
 
     def test_new_post_in_post_page(self):
+        """
+        Проверка видимости нового поста на странице поста
+        """
         url = reverse(
             'post_view',
             kwargs={
@@ -59,6 +65,9 @@ class ProfileTest(TestCase):
         )
 
     def test_new_post_in_user_page(self):
+        """
+        Проверка видимости нового поста на странице пользователя
+        """
         url = reverse(
             'profile_view',
             kwargs={'username': self.user.username}
@@ -70,6 +79,10 @@ class ProfileTest(TestCase):
         )
 
     def test_create_login(self):
+        """
+        Проверка создания нового поста залогиненным пользователем
+        и видимость этого поста на разных страницах сайта
+        """
         self.client.force_login(self.user)
         url = reverse('new_post')
         new_post = 'This is a new post'
@@ -115,6 +128,10 @@ class ProfileTest(TestCase):
         )
 
     def test_edit_posts(self):
+        """
+        Проверка изменения поста залогиненным пользователем
+        и видимость этого изменения на разных страницах сайта
+        """
         self.client.force_login(self.user)
         url = reverse(
             'post_edit',
@@ -162,6 +179,10 @@ class ProfileTest(TestCase):
         )
 
     def test_edit_posts_another_user(self):
+        """
+        Проверка попытки изменения поста не его автором
+        и реакция программы на такую попытку
+        """
         # не автор поста при попытке редактировать пост
         # редиректится на страницу показа этого поста
         self.client.force_login(self.user2)
@@ -195,6 +216,10 @@ class ProfileTest(TestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_is_image(self):
+        """
+        Проверка создания нового поста с картинкой залогиненным пользователем
+        и видимость картинки разных страницах сайта
+        """
         self.client.force_login(self.user)
         url = reverse(
             'post_edit',
@@ -245,8 +270,13 @@ class ProfileTest(TestCase):
         response = self.client.get(url)
         self.assertContains(response, 'img class="card-img"')
 
-    # загрузка неграфического файла
     def test_load_non_image(self):
+        """
+        Проверка создания нового поста с картинкой залогиненным
+        пользователем при том, что картинка не является графическим
+        файлом, хоть и имеет расширение jpg. Проверка, на загрузку этого файла
+        и появление тега изображения на странице.
+        """
         self.client.force_login(self.user)
         url = reverse(
             'post_edit',
@@ -277,6 +307,10 @@ class ProfileTest(TestCase):
         self.assertNotContains(response, 'img class="card-img"')
 
     def test_kache_new_posts(self):
+        """
+        Проверка видимости нового поста на главной странце
+        до и после чистки кэша
+        """
         self.client.force_login(self.user)
         url = reverse('new_post')
         new_post = 'JCu9K^W1sM75dM9*@'
@@ -295,6 +329,10 @@ class ProfileTest(TestCase):
         self.assertContains(response, new_post)
 
     def test_kache_time(self):
+        """
+        Проверка видимости нового поста на главной странце
+        до и после прохождения времени кэширования
+        """
         self.client.force_login(self.user)
         url = reverse('new_post')
         new_post = 'DR#4x@X97$7^kFr!l'
@@ -313,6 +351,10 @@ class ProfileTest(TestCase):
         self.assertContains(response, new_post)
 
     def test_comments_one(self):
+        """
+        Проверка создания комментария залогиненным пользователем и
+        невозможность создания комментария разлогиеннным пользователем
+        """
         self.client.force_login(self.user)
         url = reverse(
             'post_view',

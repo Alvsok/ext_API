@@ -26,9 +26,9 @@
                      Записей: {{ profile.author_posts.count }}
                   </div>
             {% if request.user.is_authenticated %}
-            {% if profile != user  %}
+            {% if profile != user  %}            
                   <li class="list-group-item">
-                     {% if following %}
+                     {% if request.user.follower.exists %}
                      <a class="btn btn-lg btn-light" 
                              href="{% url 'profile_unfollow' profile.username %}" role="button"> 
                              Отписаться 

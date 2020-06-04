@@ -8,7 +8,7 @@ from .forms import PostForm, CommentForm
 
 @cache_page(20)
 def index(request):
-    post_list = Post.objects.order_by('-pub_date').all()
+    post_list = Post.objects.all()
     paginator = Paginator(post_list, 10)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
@@ -21,7 +21,7 @@ def index(request):
 
 def group_posts(request, slug):
     group = get_object_or_404(Group, slug=slug)
-    posts = group.group_posts.order_by('-pub_date').all()
+    posts = group.group_posts.all()
     paginator = Paginator(posts, 10)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
@@ -48,18 +48,11 @@ def new_post(request):
 
 def profile_view(request, username):
     profile = get_object_or_404(User, username=username)
-    articles = profile.author_posts.order_by('-pub_date').all()
-    follower = profile.follower.filter(author=profile)
-    if (request.user.is_authenticated):
-        following = request.user.follower.filter(author=profile)
-    else:
-        following = 0
+    articles = profile.author_posts.all()
     paginator = Paginator(articles, 10)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
     context = {
-        'follower': follower,
-        'following': following,
         'profile': profile,
         'page': page,
         'paginator': paginator,
@@ -72,12 +65,11 @@ def post_view(request, username, post_id):
     article = get_object_or_404(profile.author_posts, id=post_id)
     comments = article.comments.all()
     comment_form = CommentForm()
-
     context = {
         'profile': profile,
         'article': article,
         'comments': comments,
-        'comment_form': comment_form
+        'form': comment_form
     }
     return render(request, 'post_view.html', context)
 
@@ -95,7 +87,7 @@ def post_edit(request, username, post_id):
             instance=article
         )
         if form.is_valid():
-            edited_article = form.save(commit=False)
+            edited_article = form.save()
             edited_article.save()
             return redirect('post_view', username=username, post_id=post_id)
         return render(request, 'new_post.html', {'form': form})
@@ -137,7 +129,7 @@ def add_comment(request, username, post_id):
         return render(
             request,
             'post_view.html',
-            {'comment_form': comment_form}
+            {'form': comment_form}
         )
     else:
         comment_form = CommentForm()
@@ -146,7 +138,7 @@ def add_comment(request, username, post_id):
         'article': article,
         'comments': comments,
         'new_comment': new_comment,
-        'comment_form': comment_form
+        'form': comment_form
     }
     return render(request, 'post_view.html', context)
 
@@ -154,11 +146,8 @@ def add_comment(request, username, post_id):
 @login_required
 def follow_index(request):
     profile = get_object_or_404(User, username=request.user)
-    my_follower_list = []
-    for elem in request.user.follower.all():
-        my_follower_list.append(elem.author.id)
-    articles = Post.objects.filter(
-        author__in=my_follower_list).order_by('-pub_date')
+    my_follower_queryset = Follow.objects.values_list('author', flat=True)
+    articles = Post.objects.filter(author__in=my_follower_queryset)
     paginator = Paginator(articles, 10)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
@@ -173,18 +162,12 @@ def follow_index(request):
 @login_required
 def profile_follow(request, username):
     author = get_object_or_404(User, username=username)
-    flag = Follow.objects.filter(
-        author=author,
-        user=request.user
-    ).count() == 0 and request.user != author
-    if flag:
-        follows = Follow.objects.create(user=request.user, author=author)
-        follows.save()
+    if request.user != author:
+        Follow.objects.get_or_create(user=request.user, author=author)
     return redirect('follow_index')
 
 
 @login_required
 def profile_unfollow(request, username):
-    author = get_object_or_404(User, username=username)
-    request.user.follower.filter(author=author).delete()
+    request.user.follower.filter(author__username=username).delete()
     return redirect('follow_index')

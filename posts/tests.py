@@ -37,9 +37,7 @@ class ProfileTest(TestCase):
 
     def test_new_post_in_home_page(self):
         url = reverse('index')
-
         cache.clear()
-
         response = self.client.get(url)
         self.assertEqual(
             response.context['page'][0].text,

@@ -11,7 +11,7 @@
         <div class="card-body">
         <form>
                 <div class="form-group">
-                {{ comment_form.text|addclass:"form-control" }}
+                {{ form.text|addclass:"form-control" }}
                 </div>
                 <button type="submit" class="btn btn-primary">Отправить</button>
         </form>
@@ -21,19 +21,19 @@
 {% endif %}
 
 <!-- Комментарии -->
-{% for item in comments %}
+{% for comment in comments %}
 <div class="media mb-4">
 <div class="media-body">
         <h5 class="mt-0">
         <a
-                href="{% url 'profile_view' item.author.username %}"
-                name="comment_{{ item.id }}"
-                >{{ item.author.username }}</a>
-        </h5>
-        {{ item.text }}
+                href="{% url 'profile_view' comment.author.username %}"
+                name="comment_{{ comment.id }}"
+                >{{ comment.author.username }}</a>
+        </h5>        
+        {{ comment.text|linebreaksbr }}        
         <br>
         <p align="right">
-        <small class="text-muted"> комментарий от {{ item.created|date:"d M Y" }} г. {{ item.created|date:"H:m" }}</small>
+        <small class="text-muted"> комментарий от {{ comment.created|date:"d M Y" }} г. {{ comment.created|date:"H:m" }}</small>
         </p>
 </div>
 </div>

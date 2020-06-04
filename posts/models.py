@@ -26,6 +26,9 @@ class Post(models.Model):
         related_name='group_posts')
     image = models.ImageField(upload_to='posts/', blank=True, null=True)
 
+    class Meta:
+        ordering = ['-pub_date']
+
 
 class Comment(models.Model):
     post = models.ForeignKey(

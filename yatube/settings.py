@@ -31,14 +31,16 @@ ALLOWED_HOSTS = [
         "127.0.0.1",
         "[::1]",
         "testserver",
+        "*",
 ]
-
 
 # Application definition
 
 INSTALLED_APPS = [
     "users",
     "posts",
+    "django.contrib.staticfiles",
+    "debug_toolbar",
     "django.contrib.sites",
     "django.contrib.flatpages",
     "django.contrib.admin",
@@ -46,7 +48,6 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
-    "django.contrib.staticfiles",
     'sorl.thumbnail',
 ]
 
@@ -58,7 +59,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    #'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
 ROOT_URLCONF = 'yatube.urls'
@@ -131,19 +132,21 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
-# задаём произвольный URL, который будет использоваться для запросов к статическим файлам
-STATIC_URL = "/static/" 
-# теперь логотип можно будет запросить по адресу sitename.ex**/static/**images/logo.png
+# задаём произвольный URL, который будет использоваться
+# для запросов к статическим файлам
+STATIC_URL = "/static/"
+# теперь логотип можно будет запросить по адресу
+# sitename.ex**/static/**images/logo.png
 
-# задаём адрес директории, куда командой *collectstatic* будет собрана вся статика
+# задаём адрес директории, куда командой
+# *collectstatic* будет собрана вся статика
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 LOGIN_URL = "/auth/login/"
-LOGIN_REDIRECT_URL = "index" 
-#LOGOUT_REDIRECT_URL = "index"
+LOGIN_REDIRECT_URL = "index"
 
 #  подключаем движок filebased.EmailBackend
 EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
@@ -157,3 +160,7 @@ CACHES = {
                 'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
         }
 }
+
+INTERNAL_IPS = [
+    "127.0.0.1",
+]

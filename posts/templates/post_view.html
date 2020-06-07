@@ -28,7 +28,7 @@
                   {% if request.user.is_authenticated %}
                   {% if profile != user  %}            
                   <li class="list-group-item">
-                     {% if request.user.follower.exists %}
+                     {% if user_follower_author %}
                      <a class="btn btn-lg btn-light" 
                              href="{% url 'profile_unfollow' profile.username %}" role="button"> 
                              Отписаться 

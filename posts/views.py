@@ -49,10 +49,17 @@ def new_post(request):
 def profile_view(request, username):
     profile = get_object_or_404(User, username=username)
     articles = profile.author_posts.all()
+    if request.user.is_authenticated:
+        user_follower_author = request.user.follower.filter(
+            author__username=username
+        ).exists()
+    else:
+        user_follower_author = False
     paginator = Paginator(articles, 10)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
     context = {
+        'user_follower_author': user_follower_author,
         'profile': profile,
         'page': page,
         'paginator': paginator,
@@ -63,11 +70,18 @@ def profile_view(request, username):
 def post_view(request, username, post_id):
     profile = get_object_or_404(User, username=username)
     article = get_object_or_404(profile.author_posts, id=post_id)
+    if request.user.is_authenticated:
+        user_follower_author = request.user.follower.filter(
+            author__username=username
+        ).exists()
+    else:
+        user_follower_author = False
     comments = article.comments.all()
     comment_form = CommentForm()
     context = {
         'profile': profile,
         'article': article,
+        'user_follower_author': user_follower_author,
         'comments': comments,
         'form': comment_form
     }
@@ -146,12 +160,13 @@ def add_comment(request, username, post_id):
 @login_required
 def follow_index(request):
     profile = get_object_or_404(User, username=request.user)
-    my_follower_queryset = Follow.objects.values_list('author', flat=True)
+    my_follower_queryset = profile.follower.values_list('author', flat=True)
     articles = Post.objects.filter(author__in=my_follower_queryset)
     paginator = Paginator(articles, 10)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
     context = {
+        'my_follower_queryset': my_follower_queryset,
         'profile': profile,
         'page': page,
         'paginator': paginator,

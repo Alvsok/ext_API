@@ -1,0 +1,51 @@
+{% extends "base.html" %} 
+{% block title %}
+{% if 'follower' in request.path %}
+    на кого подписан @{{ profile }}
+{% else %}
+    кто подписан на @{{ profile }}
+{% endif %}
+{% endblock %}
+{% block content %}
+
+<main role="main" class="container">
+<div class="row">
+        <div class="col-md-12">
+        {% if 'follower' in request.path %}
+            {% if authors.exists %}
+                <h1>
+                    <a href="{% url 'profile_view' profile %}" target="_blank">
+                        <class="d-block text-gray-dark">{{ profile.get_full_name }}</a>
+                     подписан на:</h1>
+            {% else %}
+                <h1>У
+                    <a href="{% url 'profile_view' profile %}" target="_blank">
+                        <class="d-block text-gray-dark">{{ profile.get_full_name }}</a>                    
+                    нет активных подписок</h1>
+            {% endif %}
+        {% else %}
+            {% if authors.exists %}
+                <h1>На
+                    <a href="{% url 'profile_view' profile %}" target="_blank">
+                        <class="d-block text-gray-dark">{{ profile.get_full_name }}</a>
+                    подписались:</h1>
+            {% else %}
+                <h1>На
+                    <a href="{% url 'profile_view' profile %}" target="_blank">
+                        <class="d-block text-gray-dark">{{ profile.get_full_name }}</a>
+                     пока никто не подписан</h1>
+            {% endif %}            
+        {% endif %}
+        {% for elem in authors %}
+            <h4><a href="{% url 'profile_view' elem %}" target="_blank">
+                <class="d-block text-gray-dark">{{ elem.get_full_name }}</a></h4>                
+        {% endfor %}
+         
+        <br />
+        <p class="lead"><a href="{% url 'index' %}">
+            Вернуться на главную</a></p>
+        </div>
+</div>
+</main>
+
+{% endblock %}

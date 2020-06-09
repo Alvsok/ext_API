@@ -186,3 +186,27 @@ def profile_follow(request, username):
 def profile_unfollow(request, username):
     request.user.follower.filter(author__username=username).delete()
     return redirect('follow_index')
+
+
+# на кого подписан
+def follower_view(request, username):
+    profile = get_object_or_404(User, username=username)
+    follower_queryset = profile.follower.values_list('author', flat=True)
+    authors = User.objects.filter(id__in=follower_queryset)
+    context = {
+        'profile': profile,
+        'authors': authors,
+    }
+    return render(request, 'list_view.html', context)
+
+
+# кто подписан
+def following_view(request, username):
+    profile = get_object_or_404(User, username=username)
+    follower_queryset = profile.following.values_list('user', flat=True)
+    authors = User.objects.filter(id__in=follower_queryset)
+    context = {
+        'profile': profile,
+        'authors': authors,
+    }
+    return render(request, 'list_view.html', context)

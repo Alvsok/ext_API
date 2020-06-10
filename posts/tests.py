@@ -7,9 +7,9 @@ from .models import User, Post, Group
 
 class ProfileTest(TestCase):
     def setUp(self):
-        # создание тестового клиента.
+        # создание тестового клиента
         self.client = Client()
-        # создание первого пользователя
+        # создание первого пользователя.
         self.user = User.objects.create_user(
             username='crackle',
             email='crackle@crackle.com',

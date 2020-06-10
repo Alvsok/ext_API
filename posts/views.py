@@ -70,6 +70,7 @@ def profile_view(request, username):
 def post_view(request, username, post_id):
     profile = get_object_or_404(User, username=username)
     article = get_object_or_404(profile.author_posts, id=post_id)
+
     if request.user.is_authenticated:
         user_follower_author = request.user.follower.filter(
             author__username=username

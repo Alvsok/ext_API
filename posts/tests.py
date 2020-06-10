@@ -9,7 +9,7 @@ class ProfileTest(TestCase):
     def setUp(self):
         # создание тестового клиента
         self.client = Client()
-        # создание пользователя
+        # создание самого первого пользователя
         self.user = User.objects.create_user(
             username='crackle',
             email='crackle@crackle.com',
